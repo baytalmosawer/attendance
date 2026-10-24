@@ -8,6 +8,7 @@
   ],
   "scripts": {
     "test": "npm test --workspaces --if-present",
+    "build": "npm run prisma:generate -w @attendance/api",
     "db:up": "docker compose up -d",
     "db:down": "docker compose down",
     "api:setup": "npm run setup -w @attendance/api",

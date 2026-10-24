@@ -52,6 +52,7 @@ export default function Setup() {
             <Field label={t('w.setup.confirm')}><input type="password" value={f.confirm} onChange={set('confirm')} autoComplete="new-password" /></Field></div>
           <PasswordRules pw={f.password} confirm={f.confirm} />
           <Field label={t('w.setup.tz')} help={t('w.setup.tzHelp')}><select value={f.timezone} onChange={set('timezone')}>{ZONES.map(([v, l]) => <option key={v} value={v}>{t(l)}</option>)}</select></Field>
+          <Field label={t('w.setup.setupKey')} help={t('w.setup.setupKeyHelp')}><input value={f.setupKey} onChange={set('setupKey')} autoComplete="off" dir="ltr" /></Field>
           <button className="btn primary" disabled={!valid || busy} onClick={start}>{busy ? <Spinner /> : t('w.setup.sendCode')}</button>
         </div></>) : (<>
         <h1>{t('w.setup.otpTitle')}</h1><p>{t('w.setup.otpBody', { email: mask(f.email) })}</p>

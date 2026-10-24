@@ -101,6 +101,7 @@ attendance
 │  │  │  ├─ demo-lib.test.ts
 │  │  │  ├─ demo-lib.ts
 │  │  │  └─ simulate-punches.ts
+│  │  ├─ server.js
 │  │  ├─ src
 │  │  │  ├─ agent
 │  │  │  │  ├─ agent.controller.ts
@@ -253,6 +254,7 @@ attendance
 │     │     ├─ logo-mark-white.png
 │     │     ├─ logo-mark.svg
 │     │     └─ README.txt
+│     ├─ server.js
 │     └─ tsconfig.json
 ├─ DECISIONS.md
 ├─ deploy
@@ -301,6 +303,8 @@ attendance
 │     │  └─ time.ts
 │     └─ tsconfig.json
 ├─ README.md
+├─ scripts
+│  └─ hostinger-build.js
 └─ vercel.json
 
 ```

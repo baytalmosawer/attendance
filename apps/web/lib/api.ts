@@ -1,7 +1,8 @@
 import { ApiError } from './errors';
 import { session } from './session';
 
-export const BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3000';
+const configuredBase = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3000';
+export const BASE = configuredBase.replace(/\/+$/, '');
 
 async function raw(path: string, method: string, body: unknown, token: string | null) {
   let res: Response;

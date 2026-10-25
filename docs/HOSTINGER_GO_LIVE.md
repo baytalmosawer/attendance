@@ -65,7 +65,6 @@ PORT=3000
 DATABASE_URL=postgresql://attendance:CHANGE_ME@db:5432/attendance
 JWT_SECRET=CHANGE_ME_MIN_32_RANDOM_CHARS
 CORS_ORIGINS=https://<DOMAIN>
-SETUP_KEY=CHANGE_ME_RANDOM
 SMTP_HOST=smtp.example.com
 SMTP_PORT=465
 SMTP_SECURE=true
@@ -75,7 +74,6 @@ SMTP_FROM_NAME=شركة بيت المصور
 ```
 
 - `JWT_SECRET`: 64 حرفًا عشوائيًا على الأقل.
-- `SETUP_KEY`: يمنع أي شخص من تشغيل معالج الإعداد الأول.
 - `SMTP_PASS`: كلمة مرور تطبيق من مزوّد البريد، وليس كلمة مرور الحساب.
 
 ### الويب (`apps/web`)
@@ -123,7 +121,7 @@ docker compose -f deploy/docker-compose.prod.yml up -d --build
 docker compose -f deploy/docker-compose.prod.yml exec api npx prisma migrate deploy
 
 # 5) فتح الموقع
-# https://<DOMAIN>/setup  (أدخل SETUP_KEY)
+# https://<DOMAIN>/setup
 ```
 
 - الجدار الناري: `22`, `80`, `443` فقط.
@@ -208,7 +206,6 @@ npx eas-cli submit --platform ios --profile production
 
 - لا ترفع `apps/api/.env` أو أي ملف مفاتيح إلى Git. المستودع عام (public).
 - استخدم أسرارًا جديدة للإنتاج، ولا تعِد استخدام كلمة مرور SMTP الحالية في الكود.
-- فعّل `SETUP_KEY` قبل فتح الموقع للعامة.
 - قيّد `CORS_ORIGINS` على دومين الويب فقط؛ تطبيق الجوال لا يرسل Origin.
 - خذ نسخة احتياطية من قاعدة البيانات قبل أي ترحيل.
 - **Next.js 14.2** عليه تنبيهات أمنية حديثة. قبل الإطلاق العام: ترقية إلى Next 15/16 (يحتاج تعديل `cookies()`/`headers()` لتصبح async)، أو كحد أدنى تعطيل `next/image` optimizer وإغلاق المسارات غير المستخدمة. لا نطلق نسخة قديمة على الإنترنت بدون معالجة ذلك.

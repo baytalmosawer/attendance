@@ -12,7 +12,8 @@
       "bundleIdentifier": "com.baytalmosawer.attendance",
       "infoPlist": {
         "NSLocationWhenInUseUsageDescription": "نستخدم موقعك لحظة تسجيل الحضور فقط للتأكد من وجودك في مقر العمل.",
-        "NSFaceIDUsageDescription": "لتأكيد هويتك عند فتح التطبيق وتسجيل الحضور."
+        "NSFaceIDUsageDescription": "لتأكيد هويتك عند فتح التطبيق وتسجيل الحضور.",
+        "ITSAppUsesNonExemptEncryption": false
       }
     },
     "android": {

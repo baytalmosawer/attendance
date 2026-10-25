@@ -28,7 +28,6 @@ services:
     environment:
       DATABASE_URL: postgresql://attendance:${DB_PASSWORD}@db:5432/attendance
       JWT_SECRET: ${JWT_SECRET:?set JWT_SECRET in deploy/.env}
-      SETUP_KEY: ${SETUP_KEY:-}
       NODE_ENV: production
       PORT: 3000
       CORS_ORIGINS: ${CORS_ORIGINS:-}

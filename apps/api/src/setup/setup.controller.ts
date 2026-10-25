@@ -50,10 +50,9 @@ export class SetupService {
     ]);
   }
 
-  async start(ip: string, b: { companyName: string; adminName: string; email: string; password: string; timezone?: string; setupKey?: string }) {
+  async start(ip: string, b: { companyName: string; adminName: string; email: string; password: string; timezone?: string }) {
     if (!limiter.allow(ip)) throw new HttpException({ code: 'TOO_MANY_REQUESTS' }, 429);
     if ((await this.prisma.user.count({ where: { emailVerifiedAt: { not: null } } })) > 0) throw new ForbiddenException('SETUP_ALREADY_DONE');
-    if (process.env.SETUP_KEY && b.setupKey !== process.env.SETUP_KEY) throw new ForbiddenException('INVALID_SETUP_KEY');
     check(b.companyName?.trim(), 'COMPANY_NAME_REQUIRED');
     check(b.adminName?.trim(), 'NAME_REQUIRED');
     check(EMAIL_RE.test(b.email ?? ''), 'INVALID_EMAIL');

@@ -16,7 +16,7 @@ const mask = (e: string) => e.replace(/^(.)(.*)(@.*)$/, (_, a, b, c) => a + '•
 export default function Setup() {
   const router = useRouter(); const toast = useToast(); const { meta } = useMeta(); const { t } = useI18n();
   const [step, setStep] = useState<1 | 2>(1);
-  const [f, setF] = useState(() => ({ adminName: '', email: '', password: '', confirm: '', timezone: 'Asia/Riyadh', setupKey: '' }));
+  const [f, setF] = useState(() => ({ adminName: '', email: '', password: '', confirm: '', timezone: 'Asia/Riyadh' }));
   const [challenge, setChallenge] = useState(''); const [code, setCode] = useState(''); const [busy, setBusy] = useState(false); const [err, setErr] = useState<unknown>(null);
 
   useEffect(() => { if (meta && !meta.needsSetup) router.replace('/login'); }, [meta, router]);
@@ -25,7 +25,7 @@ export default function Setup() {
 
   async function start() {
     setBusy(true); setErr(null);
-    try { const r = await api('/setup/start', { method: 'POST', auth: false, body: { companyName: COMPANY_NAME, adminName: f.adminName, email: f.email, password: f.password, timezone: f.timezone, setupKey: f.setupKey || undefined } });
+    try { const r = await api('/setup/start', { method: 'POST', auth: false, body: { companyName: COMPANY_NAME, adminName: f.adminName, email: f.email, password: f.password, timezone: f.timezone } });
       setChallenge(r.challengeId); setCode(''); setStep(2); toast.info(t('w.setup.sent'), t('w.setup.sentTo', { email: mask(f.email) })); }
     catch (e) { setErr(e); }
     setBusy(false);
@@ -52,7 +52,6 @@ export default function Setup() {
             <Field label={t('w.setup.confirm')}><input type="password" value={f.confirm} onChange={set('confirm')} autoComplete="new-password" /></Field></div>
           <PasswordRules pw={f.password} confirm={f.confirm} />
           <Field label={t('w.setup.tz')} help={t('w.setup.tzHelp')}><select value={f.timezone} onChange={set('timezone')}>{ZONES.map(([v, l]) => <option key={v} value={v}>{t(l)}</option>)}</select></Field>
-          <Field label={t('w.setup.setupKey')} help={t('w.setup.setupKeyHelp')}><input value={f.setupKey} onChange={set('setupKey')} autoComplete="off" dir="ltr" /></Field>
           <button className="btn primary" disabled={!valid || busy} onClick={start}>{busy ? <Spinner /> : t('w.setup.sendCode')}</button>
         </div></>) : (<>
         <h1>{t('w.setup.otpTitle')}</h1><p>{t('w.setup.otpBody', { email: mask(f.email) })}</p>

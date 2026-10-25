@@ -9,6 +9,7 @@
   "scripts": {
     "test": "npm test --workspaces --if-present",
     "build": "node scripts/hostinger-build.js",
+    "migrate:deploy": "npm run migrate:deploy -w @attendance/api",
     "db:up": "docker compose up -d",
     "db:down": "docker compose down",
     "api:setup": "npm run setup -w @attendance/api",

@@ -145,13 +145,15 @@ docker compose -f deploy/docker-compose.prod.yml exec api npx prisma migrate dep
 5. ارفع API كتطبيق Node.js على `api.<DOMAIN>`:
    - Build: `npm install && npm run build -w @attendance/api`
    - Start: `npm run start -w @attendance/api`
-6. بعد كل نشر يتضمن تغييرات قاعدة البيانات، نفّذ ترحيلات Prisma عبر SSH من جذر المستودع:
+6. إذا كانت الاستضافة لا تتيح تشغيل أوامر عبر SSH، اضبط أمر البناء في hPanel من جذر المستودع:
 
    ```bash
-   npx prisma migrate deploy --schema=apps/api/prisma/schema.prisma
+   npm run migrate:deploy && npm run build
    ```
 
-   لا تستخدم `prisma db push` في الإنتاج؛ الترحيلات تحفظ بنية القاعدة وتُسجّل ما تم تطبيقه.
+   يجب ضبط `DATABASE_URL` في بيئة البناء ليشير إلى قاعدة بيانات الإنتاج. خذ نسخة احتياطية قبل النشر. ينفّذ الأمر الترحيلات أثناء البناء فقط، وليس عند كل تشغيل للخادم. على VPS، يمكن تشغيل `npm run migrate:deploy` يدويًا من جذر المستودع.
+
+   لا تستخدم `prisma db push` في الإنتاج؛ `migrate deploy` يطبّق ملفات الترحيل ويسجّل ما تم تطبيقه.
 7. اضبط `NEXT_PUBLIC_API_URL` وأعد بناء الويب.
 
 **تحذير:** المشروع Monorepo، وحزم `@attendance/shared` و`@attendance/i18n` محلية. يجب أن يكون جذر التطبيق في Hostinger هو جذر المستودع، أو ننشئ حزمة نشر مستقلة. هذا يحتاج تجربة فعلية على الاستضافة.

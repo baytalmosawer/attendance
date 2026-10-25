@@ -1,0 +1,3 @@
+ALTER TABLE "User"
+ADD COLUMN "startDate" TEXT,
+ADD COLUMN "endDate" TEXT;

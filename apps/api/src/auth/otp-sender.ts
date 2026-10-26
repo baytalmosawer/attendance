@@ -15,10 +15,14 @@ export class EmailOtpSender extends OtpSender {
     const { subject, html, text } = renderOtpEmail({ name: m.name, code: m.code, purpose: m.purpose, minutes: OTP_TTL_MINUTES });
     try {
       const result = await this.mail.send({ to: m.email, subject, html, text });
-      const acceptedRecipients = result.accepted?.length ?? 0;
-      if (!acceptedRecipients) throw new Error('SMTP accepted no recipients');
-      this.log.log(`OTP email accepted by SMTP (messageId: ${result.messageId}; accepted recipients: ${acceptedRecipients})`);
+      const accepted = result.accepted?.length ?? 0;
+      const rejected = result.rejected?.length ?? 0;
+      this.log.log(`OTP email: accepted=${accepted} rejected=${rejected} response=${result.response ?? '-'} messageId=${result.messageId}`);
+      if (!accepted) throw new Error(`SMTP accepted no recipients: ${JSON.stringify(result.rejected ?? [])}`);
     }
-    catch (e: any) { this.log.error(`OTP email failed: ${e?.message}`); throw new ServiceUnavailableException('EMAIL_SEND_FAILED'); }
+    catch (e: any) {
+      this.log.error(`OTP email failed: code=${e?.code ?? '-'} command=${e?.command ?? '-'} response=${e?.response ?? '-'} message=${e?.message}`);
+      throw new ServiceUnavailableException('EMAIL_SEND_FAILED');
+    }
   }
 }

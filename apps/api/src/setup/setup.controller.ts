@@ -1,7 +1,8 @@
-import { Body, Controller, ForbiddenException, Get, HttpException, Injectable, Ip, Post } from '@nestjs/common';
+import { Body, Controller, ForbiddenException, Get, HttpException, Injectable, Ip, NotFoundException, Post } from '@nestjs/common';
 import { DEFAULT_POLICY, normalizePolicy, periodBounds, periodOf, toLocalParts } from '@attendance/shared';
 import { check } from '../common/http';
 import { PrismaService } from '../common/prisma.service';
+import { MailService } from '../common/mail.service';
 import { RateLimiter } from '../common/rate-limit';
 import { Public } from '../auth/public.decorator';
 import { AuthService } from '../auth/auth.service';
@@ -17,7 +18,7 @@ function validTimezone(tz: string) { try { new Intl.DateTimeFormat('en', { timeZ
 
 @Injectable()
 export class SetupService {
-  constructor(private prisma: PrismaService, private auth: AuthService) {}
+  constructor(private prisma: PrismaService, private auth: AuthService, private mail: MailService) {}
 
   /** Public facts the login/setup screens need. The clock is the SERVER's, in the company timezone, Gregorian calendar. */
   async meta() {
@@ -72,6 +73,35 @@ export class SetupService {
     });
     return this.auth.startOtp(admin, 'web', 'SETUP'); // the admin becomes active only after the email OTP is confirmed
   }
+
+  /**
+   * Temporary pre-setup diagnostic: checks SMTP auth and sends one test message, returning the full
+   * server response. Disabled automatically once setup is complete. Never returns the password.
+   */
+  async testMail(ip: string, to: string) {
+    if ((await this.prisma.user.count({ where: { emailVerifiedAt: { not: null } } })) > 0) throw new NotFoundException();
+    if (!limiter.allow(ip)) throw new HttpException({ code: 'TOO_MANY_REQUESTS' }, 429);
+    const target = String(to ?? '').trim();
+    check(EMAIL_RE.test(target), 'INVALID_EMAIL');
+
+    const out: Record<string, unknown> = {
+      config: {
+        host: process.env.SMTP_HOST ?? 'smtp.gmail.com',
+        port: Number(process.env.SMTP_PORT ?? 465),
+        secure: (process.env.SMTP_SECURE ?? 'true') === 'true',
+        user: process.env.SMTP_USER ?? null,
+        configured: this.mail.configured,
+        from: this.mail.configured ? this.mail.from() : null,
+      },
+    };
+    try { out.verify = await this.mail.verify(); }
+    catch (e: any) { out.verifyError = { code: e?.code ?? null, command: e?.command ?? null, response: e?.response ?? null, message: e?.message ?? String(e) }; }
+    try {
+      const r = await this.mail.send({ to: target, subject: 'اختبار البريد — بيت المصور', text: 'رسالة اختبار من نظام بيت المصور.', html: '<p dir="rtl">رسالة اختبار من نظام بيت المصور.</p>' });
+      out.send = { accepted: r.accepted, rejected: r.rejected, response: r.response, messageId: r.messageId, envelope: r.envelope };
+    } catch (e: any) { out.sendError = { code: e?.code ?? null, command: e?.command ?? null, response: e?.response ?? null, message: e?.message ?? String(e) }; }
+    return out;
+  }
 }
 
 @Public()
@@ -83,4 +113,5 @@ export class SetupController {
     return { ok: true, service: 'attendance-api', time: new Date().toISOString(), uptime: Math.round(process.uptime()) };
   }
   @Post('setup/start') start(@Ip() ip: string, @Body() b: any) { return this.svc.start(ip, b); }
+  @Post('health/mail/test') testMail(@Ip() ip: string, @Body() b: any) { return this.svc.testMail(ip, b?.to); }
 }

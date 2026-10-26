@@ -22,8 +22,16 @@ export class MailService {
     return this.tx;
   }
 
+  from() { return `"${process.env.SMTP_FROM_NAME ?? 'Bayt Al Mosawer'}" <${process.env.SMTP_USER}>`; }
+
   async send(m: MailMessage) {
     if (!this.configured) throw new Error('SMTP is not configured');
-    return this.transporter().sendMail({ from: `"${process.env.SMTP_FROM_NAME ?? 'Bayt Al Mosawer'}" <${process.env.SMTP_USER}>`, ...m });
+    return this.transporter().sendMail({ from: this.from(), ...m });
+  }
+
+  /** Opens a real SMTP connection and authenticates without sending anything. */
+  async verify() {
+    if (!this.configured) throw new Error('SMTP is not configured');
+    return this.transporter().verify();
   }
 }

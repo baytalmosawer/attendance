@@ -145,13 +145,9 @@ docker compose -f deploy/docker-compose.prod.yml exec api npx prisma migrate dep
 5. ارفع API كتطبيق Node.js على `api.<DOMAIN>`:
    - Build: `npm install && npm run build -w @attendance/api`
    - Start: `npm run start -w @attendance/api`
-6. إذا كانت الاستضافة لا تتيح تشغيل أوامر عبر SSH، اضبط أمر البناء في hPanel من جذر المستودع:
+6. إذا كانت الاستضافة لا تتيح تشغيل أوامر أخرى غير `npm run build`، فهذا الأمر يطبّق ترحيلات Prisma تلقائيًا أثناء بناء الـ API. اضبط `DATABASE_URL` في بيئة البناء ليشير إلى قاعدة بيانات الإنتاج، وخذ نسخة احتياطية قبل النشر. الترحيلات لا تعمل عند تشغيل الخادم أو إعادة تشغيله.
 
-   ```bash
-   npm run migrate:deploy && npm run build
-   ```
-
-   يجب ضبط `DATABASE_URL` في بيئة البناء ليشير إلى قاعدة بيانات الإنتاج. خذ نسخة احتياطية قبل النشر. ينفّذ الأمر الترحيلات أثناء البناء فقط، وليس عند كل تشغيل للخادم. على VPS، يمكن تشغيل `npm run migrate:deploy` يدويًا من جذر المستودع.
+   إذا نُفّذ البناء من جذر المستودع، يطبق سكربت البناء الترحيلات قبل توليد Prisma Client. وإذا نُفّذ من `apps/api`، يطبقها أمر بناء الحزمة قبل فحص TypeScript. على VPS، يمكن تشغيل `npm run migrate:deploy` يدويًا بدلًا من ذلك.
 
    لا تستخدم `prisma db push` في الإنتاج؛ `migrate deploy` يطبّق ملفات الترحيل ويسجّل ما تم تطبيقه.
 7. اضبط `NEXT_PUBLIC_API_URL` وأعد بناء الويب.

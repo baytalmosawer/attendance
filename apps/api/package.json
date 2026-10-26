@@ -3,11 +3,11 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "build": "tsc --noEmit -p tsconfig.json",
+    "build": "npm run migrate:deploy && tsc --noEmit -p tsconfig.json",
     "start": "ts-node src/main.ts",
     "start:prod": "ts-node --transpile-only src/main.ts",
     "prisma:generate": "prisma generate",
-    "migrate:deploy": "prisma migrate deploy",
+    "migrate:deploy": "prisma migrate deploy --schema=prisma/schema.prisma",
     "test": "vitest run",
     "seed": "ts-node prisma/seed.ts",
     "setup": "prisma generate && prisma migrate dev --name v3_tasks_devices",

@@ -75,6 +75,7 @@ SMTP_FROM_NAME=شركة بيت المصور
 
 - `JWT_SECRET`: 64 حرفًا عشوائيًا على الأقل.
 - `SMTP_PASS`: كلمة مرور تطبيق من مزوّد البريد، وليس كلمة مرور الحساب.
+- اضبط متغيرات `SMTP_HOST` و`SMTP_PORT` و`SMTP_SECURE` و`SMTP_USER` و`SMTP_PASS` و`SMTP_FROM_NAME` في **بيئة تطبيق الـ API** على Hostinger، وليس تطبيق الويب. إذا لم تُضبط بيانات SMTP، سيرفض الـ API طلب OTP بدل إظهار نجاح وهمي.
 
 ### الويب (`apps/web`)
 

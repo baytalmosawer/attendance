@@ -13,7 +13,12 @@ export class EmailOtpSender extends OtpSender {
   constructor(private mail: MailService) { super(); }
   async send(m: OtpMessage) {
     const { subject, html, text } = renderOtpEmail({ name: m.name, code: m.code, purpose: m.purpose, minutes: OTP_TTL_MINUTES });
-    try { await this.mail.send({ to: m.email, subject, html, text }); }
+    try {
+      const result = await this.mail.send({ to: m.email, subject, html, text });
+      const acceptedRecipients = result.accepted?.length ?? 0;
+      if (!acceptedRecipients) throw new Error('SMTP accepted no recipients');
+      this.log.log(`OTP email accepted by SMTP (messageId: ${result.messageId}; accepted recipients: ${acceptedRecipients})`);
+    }
     catch (e: any) { this.log.error(`OTP email failed: ${e?.message}`); throw new ServiceUnavailableException('EMAIL_SEND_FAILED'); }
   }
 }

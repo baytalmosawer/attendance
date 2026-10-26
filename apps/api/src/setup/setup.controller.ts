@@ -1,4 +1,4 @@
-import { Body, Controller, ForbiddenException, Get, HttpException, Injectable, Ip, NotFoundException, Post } from '@nestjs/common';
+import { Body, Controller, ForbiddenException, Get, HttpException, Injectable, Ip, NotFoundException, Post, Query } from '@nestjs/common';
 import { DEFAULT_POLICY, normalizePolicy, periodBounds, periodOf, toLocalParts } from '@attendance/shared';
 import { check } from '../common/http';
 import { PrismaService } from '../common/prisma.service';
@@ -110,8 +110,12 @@ export class SetupController {
   constructor(private svc: SetupService) {}
   @Get('meta') meta() { return this.svc.meta(); }
   @Get('health') health() {
-    return { ok: true, service: 'attendance-api', time: new Date().toISOString(), uptime: Math.round(process.uptime()) };
+    return { ok: true, service: 'attendance-api', time: new Date().toISOString(), uptime: Math.round(process.uptime()),
+      mail: { configured: !!(process.env.SMTP_USER && process.env.SMTP_PASS),
+        host: process.env.SMTP_HOST ?? 'smtp.gmail.com', port: Number(process.env.SMTP_PORT ?? 465),
+        secure: (process.env.SMTP_SECURE ?? 'true') === 'true', from: process.env.SMTP_USER ?? null } };
   }
   @Post('setup/start') start(@Ip() ip: string, @Body() b: any) { return this.svc.start(ip, b); }
   @Post('health/mail/test') testMail(@Ip() ip: string, @Body() b: any) { return this.svc.testMail(ip, b?.to); }
+  @Get('health/mail/test') testMailGet(@Ip() ip: string, @Query('to') to: string) { return this.svc.testMail(ip, to); }
 }
